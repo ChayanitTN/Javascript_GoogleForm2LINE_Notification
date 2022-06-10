@@ -1,0 +1,54 @@
+function generateMessage(self)
+{
+  var form = FormApp.openById('^^^^');                            ////GoogleForm ID
+  var itemResponses = self.response.getItemResponses();
+  var text_data = ' ';
+  var tken = ['====', '====', '====', '===='];                    ////LineToken ID
+  var token;
+  var other = 0;
+
+  for (var j = 0; j < itemResponses.length; j++) {
+    var itemResponse = itemResponses[j]; 
+    text_data += '\n'+itemResponse.getItem().getTitle() +':'+itemResponse.getResponse()
+                                                                        ////
+    if ((itemResponse.getItem().getTitle()=='Job Title') && itemResponse.getResponse() == 'Software Engineer'){
+      token = tken[0];
+    }
+    else if ((itemResponse.getItem().getTitle()=='Job Title') && itemResponse.getResponse()== "Innovation Engineer") {
+      token = tken[1];
+    }    
+    else {
+      if ((itemResponse.getItem().getTitle()=='Job Title') && itemResponse.getResponse()== "Sales") { 
+        token = tken[2];
+      }
+      else if ((itemResponse.getItem().getTitle()=='Job Title') && itemResponse.getResponse()== "Customer Service") {
+        token = tken[3];
+      }
+      else{
+       other = 1;
+      }                                                                    
+    } 
+  }
+  sendNotification(text_data, token, other);
+}
+
+function sendNotification(text, token, other_incase){
+  var tokenHR = '1mSAQwsoLVt5TtCuovHaW7hzbLeHZPCv3cuDhJX14x7';
+  var formData = {
+    'message': text,
+    };
+  optionFXN(tokenHR, formData);
+  if (other_incase !== 0) {
+    optionFXN(token, formData);
+  }
+}
+
+function optionFXN(tokenS, form_data_opt){
+  var options = {
+    'method' : 'post',
+    'headers' : {'Authorization': "Bearer " + tokenS},
+    'contentType': 'application/x-www-form-urlencoded',
+    'payload' : form_data_opt
+  };
+  var response = UrlFetchApp.fetch("https://notify-api.line.me/api/notify", options);
+}
